@@ -1,87 +1,75 @@
-from typing import Counter
-import pandas as pd
 import plotly.figure_factory as ff
-import plotly.graph_objects as go
+import pandas as pd
+import csv
 import statistics
 import random
-import csv
+import plotly.graph_objects as go
 
 df = pd.read_csv("StudentsPerformance.csv")
 data = df["mathscore"].tolist()
-fig = ff.create_distplot([data],["Math Scores"],show_hist=False)
-#fig.show()
+""" fig = ff.create_distplot([data], ["Math Scores"], show_hist=False)
+fig.show() """
 
-mean = statistics.mean(data)
-std_dev = statistics.stdev(data)
+P_mean = statistics.mean(data)
+P_stdev = statistics.stdev(data)
 
-print(mean)
-print(std_dev)
+print("Mean of the Population: ", P_mean)
+print("Standard Deviation of the Population: ", P_stdev)
 
-def randomsetofmean():
-    dataset = []
-    for i in range(0,30):
-        randomIndex = random.randint(0,len(data)-1)
+def randomSetOfMeans(counter):
+    dataSet = []
+    for i in range (0, counter):
+        randomIndex = random.randint(0, len(data) - 1)
         value = data[randomIndex]
-        dataset.append(value)
-    mean = statistics.mean(dataset)
-    return mean
+        dataSet.append(value)
+    
+    mean = statistics.mean(dataSet)
+    return(mean)
 
 meanList = []
+for i in range (0,100):
+    setOfMeans = randomSetOfMeans(30)
+    meanList.append(setOfMeans)
 
-def randomsetofmean(counter):
-    dataset = []
-    for i in range (0,counter):
-        randomIndex = random.randint(0,len(data))
-        value = data[randomIndex]
-        dataset.append(value)
-    mean = statistics.mean(dataset)
-    return mean
+S_mean = statistics.mean(meanList)
+S_stdev = statistics.stdev(meanList)
 
-def setup():
-    for i in range(0,100):
-    setofmeans = randomsetofmean(30)
-    meanList.append(setofmeans)
-    show_fig(meanList)
+print("Mean of the Sample: ", S_mean)
+print("Standard Deviation of the Sample: ", S_stdev)
 
-def show_fig(meanList):
-    df = meanList
-    fig = ff.create_distplot([df],["temp"],show_hist=False)
-    fig.show()    
+first_stdev_start, first_stdev_end = P_mean - P_stdev, P_mean + P_stdev
+second_stdev_start, second_stdev_end = P_mean - (2*P_stdev), P_mean + (2*P_stdev)
+third_stdev_start, third_stdev_end = P_mean - (3*P_stdev), P_mean + (3*P_stdev)
 
-sd_sapmle = statistics.stdev(meanList)
-#sd is standard deviation
+fig = ff.create_distplot([meanList], ["Math Scores"], show_hist=False)
+fig.add_trace(go.Scatter(x=[P_mean, P_mean], y=[0, 0.17], mode="lines", name="MEAN"))
+fig.add_trace(go.Scatter(x=[first_stdev_start, first_stdev_start], y=[0, 0.17], mode="lines", name="STANDARD DEVIATION 1"))
+fig.add_trace(go.Scatter(x=[first_stdev_end, first_stdev_end], y=[0, 0.17], mode="lines", name="STANDARD DEVIATION 1"))
+fig.add_trace(go.Scatter(x=[second_stdev_start, second_stdev_start], y=[0, 0.17], mode="lines", name="STANDARD DEVIATION 2"))
+fig.add_trace(go.Scatter(x=[second_stdev_end, second_stdev_end], y=[0, 0.17], mode="lines", name="STANDARD DEVIATION 2"))
+fig.add_trace(go.Scatter(x=[third_stdev_start, third_stdev_start], y=[0, 0.17], mode="lines", name="STANDARD DEVIATION 3"))
+fig.add_trace(go.Scatter(x=[third_stdev_end, third_stdev_end], y=[0, 0.17], mode="lines", name="STANDARD DEVIATION 3")) 
 
-mean_sample = statistics.mean(meanList)
+#First Intervention Data Analyzation
 
-print(sd_sapmle)
-print(mean_sample)
+df_1 = pd.read_csv("Inter1.csv")
+data_1 = df_1["mathscore"].tolist()
+meanOfSample1 = statistics.mean(data_1)
+print("Mean of Sample 1: ", meanOfSample1)
+fig.add_trace(go.Scatter(x=[meanOfSample1, meanOfSample1], y=[0, 0.17], mode="lines", name="Mean of Sample 1"))
 
-fig = ff.create_distplot([meanList],["Math Scores"],show_hist=False)
- 
-firstStandardDeviationStart,firstStandardDeviationEnd = mean-std_dev,mean+std_dev
-secondStandardDeviationStart,secondStandardDeviationEnd = mean-(2*std_dev),mean+(2*std_dev)
-thirdStandardDeviationStart,thirdStandardDeviationEnd = mean-(3*std_dev),mean+(3*std_dev)
+#Third Intervention Data Analyzation
 
-fig.add_trace(go.Scatter(x=[mean,mean],y=[0,0.17],mode="lines",name="MEAN"))
+df_3 = pd.read_csv("Inter3.csv")
+data_3 = df_3["mathscore"].tolist()
+meanOfSample3 = statistics.mean(data_3)
+print("Mean of Sample 3: ", meanOfSample3)
+fig.add_trace(go.Scatter(x=[meanOfSample3, meanOfSample3], y=[0, 0.17], mode="lines", name="Mean of Sample 3"))
 
-fig.add_trace(go.Scatter(x=[firstStandardDeviationStart,firstStandardDeviationStart],y=[0,0.17],mode="lines",name="FirstStandardDeviationStart"))
-fig.add_trace(go.Scatter(x=[firstStandardDeviationEnd,firstStandardDeviationEnd],y=[0,0.17],mode="lines",name="FirstStandardDeviationEnd"))
-
-fig.add_trace(go.Scatter(x=[secondStandardDeviationStart,secondStandardDeviationStart],y=[0,0.17],mode="lines",name="SecondStandardDeviationStart"))
-fig.add_trace(go.Scatter(x=[secondStandardDeviationEnd,secondStandardDeviationEnd],y=[0,0.17],mode="lines",name="secondStandardDeviationEnd"))
-
-fig.add_trace(go.Scatter(x=[thirdStandardDeviationStart,thirdStandardDeviationStart],y=[0,0.17],mode="lines",name="thirdStandardDeviationStart"))
-fig.add_trace(go.Scatter(x=[thirdStandardDeviationEnd,thirdStandardDeviationEnd],y=[0,0.17],mode="lines",name="ThirdStandardDeviationEnd"))
-
-
-df3 = pd.read_csv("StudentsPerfomance.csv")
-data3 = df3["mathscore"].tolist()
-mean_sample3 = statistics.mean(data3)
-print("mean of sample 1=",mean_sample3)
-
-
-fig.add_trace(go.Scatter(x=[mean_sample3,mean_sample3],y=[0,0.17],mode = "lines", name = "mathScore"))
 fig.show()
 
-z_score3= (mean_sample - mean_sample3)/sd_sapmle
-print("The z score3 is = ",z_score3)
+#Z-Score
+ZScore = (meanOfSample1-P_mean)/P_stdev
+print("Z-Score 1: ", ZScore)
+ZScore3 = (meanOfSample3-P_mean)/P_stdev
+print("Z-Score 3: ", ZScore3)
